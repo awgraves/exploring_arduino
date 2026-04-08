@@ -13,3 +13,6 @@ create:
 upload:
 	$(ARDUINO_CLI) compile -v -b $(BOARD_TYPE) -u -p $(SERIAL_PORT) $(s)
 
+# open the serial monitor
+monitor:
+	$(ARDUINO_CLI) monitor --port $(SERIAL_PORT)
