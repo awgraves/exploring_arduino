@@ -16,3 +16,6 @@ upload:
 # open the serial monitor
 monitor:
 	$(ARDUINO_CLI) monitor --port $(SERIAL_PORT)
+
+install:
+	$(ARDUINO_CLI) lib install $(lib)
