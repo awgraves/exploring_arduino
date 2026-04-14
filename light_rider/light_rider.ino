@@ -12,9 +12,14 @@ void setup() {
   pinMode(POT, INPUT);
 }
 
+// assumes MSB First
 void shift(int i){
   digitalWrite(LATCH, LOW);
-  shiftOut(SER, CLK, MSBFIRST, i);
+  for (int j=7; j >= 0; j--){
+    digitalWrite(SER, ((i & 1 << j) != 0));
+    digitalWrite(CLK, HIGH);
+    digitalWrite(CLK, LOW);
+  }
   digitalWrite(LATCH, HIGH);
 }
 
