@@ -9,6 +9,8 @@ const int CMD_CLEAR = 0x01;
 const int CMD_DISPLAY_ON = 0x0C;
 const int _BLINK_CURSOR = 0x01;
 
+const int CMD_SET_CGRAM_ADDR = 0x40;
+
 const int CMD_SET_CURSOR = 0x80;
 
 enum RegisterMode { COMMAND = LOW, CHAR = HIGH };
@@ -68,6 +70,23 @@ void LCD_set_cursor(LCD *lcd, unsigned int row, unsigned int col) {
 void LCD_clear(LCD *lcd) {
   set_register_mode(lcd, COMMAND);
   write_byte(lcd, CMD_CLEAR);
+}
+
+void LCD_create_char(LCD *lcd, unsigned int addr, unsigned int byte_array[8]) {
+  addr &= 0x7; // can only be 0-7, mask off additional bits
+
+  set_register_mode(lcd, COMMAND);
+  // left shift addr by 3 because each custom char takes up 8 bytes
+  write_byte(lcd, CMD_SET_CGRAM_ADDR | (addr << 3));
+
+  set_register_mode(lcd, CHAR);
+  for (int i = 0; i < 8; i++) {
+    write_byte(lcd, byte_array[i]);
+  }
+}
+void LCD_write_char(LCD *lcd, unsigned int c) {
+  set_register_mode(lcd, CHAR);
+  write_byte(lcd, c);
 }
 
 /* Low level */

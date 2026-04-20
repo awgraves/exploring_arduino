@@ -14,5 +14,8 @@ void LCD_clear(LCD *lcd);
 void LCD_print(LCD *lcd, char *s);
 void LCD_print(LCD *lcd, int i);
 
+void LCD_write_char(LCD *lcd, unsigned int c);
+void LCD_create_char(LCD *lcd, unsigned int addr, unsigned int byte_array[8]);
+
 void LCD_set_cursor(LCD *lcd, unsigned int row, unsigned int col);
 #endif
