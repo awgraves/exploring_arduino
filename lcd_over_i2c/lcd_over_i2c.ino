@@ -46,7 +46,7 @@ void print_status(int n){
   }
 
   // remaining space
-  while(col <= 15){
+  while(col <= 12){
     LCD_print(&lcd, " ");
     col++;
   }

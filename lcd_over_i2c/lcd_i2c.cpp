@@ -13,6 +13,9 @@ const int BACKLIGHT = 0x08;
 const int CMD_8BIT_MODE = 0x3;
 const int CMD_4BIT_MODE = 0x2;
 
+const int CMD_FUNC_SET = 0x28;   // 4bit mode, 2 line display, 5x8 font
+const int CMD_ENTRY_MODE = 0x06; // inc cursor, no display shift
+
 const int CMD_CLEAR = 0x01;
 const int CMD_DISPLAY_ON = 0x0C;
 const int _BLINK_CURSOR = 0x01;
@@ -40,15 +43,15 @@ void LCD_init(LCD *lcd) {
   write_nibble(lcd, CMD_8BIT_MODE, COMMAND);
   delay(5);
   write_nibble(lcd, CMD_8BIT_MODE, COMMAND);
-  delay(1);
   write_nibble(lcd, CMD_8BIT_MODE, COMMAND);
-  delay(1);
   // enter 4 bit mode
   write_nibble(lcd, CMD_4BIT_MODE, COMMAND);
   delay(1);
 
-  write_byte(lcd, CMD_CLEAR, COMMAND);
+  write_byte(lcd, CMD_FUNC_SET, COMMAND);
   write_byte(lcd, CMD_DISPLAY_ON | (lcd->blink ? _BLINK_CURSOR : 0), COMMAND);
+  write_byte(lcd, CMD_CLEAR, COMMAND);
+  write_byte(lcd, CMD_ENTRY_MODE, COMMAND);
 }
 
 void LCD_print(LCD *lcd, char *s) {
