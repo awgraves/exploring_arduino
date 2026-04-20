@@ -11,7 +11,7 @@ create:
 
 # make upload s=<sketch name>
 upload:
-	$(ARDUINO_CLI) compile -v -b $(BOARD_TYPE) -u -p $(SERIAL_PORT) $(s)
+	$(ARDUINO_CLI) compile -v -b $(BOARD_TYPE) -u -p $(SERIAL_PORT) $(s) --clean
 
 # open the serial monitor
 monitor:
