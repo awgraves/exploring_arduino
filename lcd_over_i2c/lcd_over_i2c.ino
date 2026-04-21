@@ -41,7 +41,7 @@ void print_status(int n){
     col++;
   }
   if (j > 0){
-    LCD_write_char(&lcd, j); // the remained will be a partial block
+    LCD_write_char(&lcd, j-1); // the remained will be a partial block
     col++;
   }
 
