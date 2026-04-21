@@ -7,10 +7,13 @@
 // where are multiplexed to a I2C hardware interface
 typedef struct {
   bool blink; // whether to blink the cursor
+  bool _display_on;
 } LCD;
 
 void LCD_init(LCD *lcd);
 void LCD_clear(LCD *lcd);
+
+void LCD_toggle_display(LCD *lcd);
 
 void LCD_print(LCD *lcd, char *s);
 void LCD_print(LCD *lcd, int i);

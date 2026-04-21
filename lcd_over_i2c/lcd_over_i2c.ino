@@ -1,9 +1,11 @@
 #include "lcd_i2c.h"
 
 const int POT=0;
+const int BUTTON=9;
 
-LCD lcd = { .blink=false};
-int val, prev;
+LCD lcd;
+int pot_val, pot_prev; // potentiometer
+int button_val, button_prev; // backlight toggle btn
 
 void setup() {
   LCD_init(&lcd);
@@ -19,7 +21,9 @@ void setup() {
   }
 
   pinMode(POT, INPUT);
-  prev = -1; // force first render
+  pinMode(BUTTON, INPUT);
+
+  pot_prev = -1; // force first render
 }
 
 
@@ -28,7 +32,7 @@ void print_status(int n){
   LCD_set_cursor(&lcd, 1, 0); // 2nd row, first position
   LCD_print(&lcd, "   "); // clear out 3 digits
   LCD_set_cursor(&lcd, 1, 0); // 2nd row, first position
-  LCD_print(&lcd, val);
+  LCD_print(&lcd, pot_val);
   // print the bar
   // always start at 4th column
   LCD_set_cursor(&lcd, 1, 3);
@@ -52,14 +56,29 @@ void print_status(int n){
   }
 }
 
-void loop() {
-  val = analogRead(POT);
-  val = map(val, 0, 1022, 0, 100); // give little wiggle room at top for stability
-
-  if (val != prev){
-    print_status(val);
+bool debounce(){
+  int val = digitalRead(BUTTON);
+  if (val != button_prev){
+    delay(5);
+    val = digitalRead(BUTTON);
   }
-  prev = val;
+  return val;
+}
+
+void loop() {
+  pot_val = analogRead(POT);
+  pot_val = map(pot_val, 0, 1022, 0, 100); // give little wiggle room at top for stability
+
+  if (pot_val != pot_prev){
+    print_status(pot_val);
+  }
+  pot_prev = pot_val;
+
+  button_val = debounce();
+  if (button_val && !button_prev){
+    LCD_toggle_display(&lcd);
+  }
+  button_prev = button_val;
 
   delay(50);
 }

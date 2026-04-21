@@ -18,6 +18,7 @@ const int CMD_ENTRY_MODE = 0x06; // inc cursor, no display shift
 
 const int CMD_CLEAR = 0x01;
 const int CMD_DISPLAY_ON = 0x0C;
+const int CMD_DISPLAY_OFF = 0x08;
 const int _BLINK_CURSOR = 0x01;
 
 const int CMD_SET_CGRAM_ADDR = 0x40;
@@ -25,6 +26,9 @@ const int CMD_SET_CGRAM_ADDR = 0x40;
 const int CMD_SET_CURSOR = 0x80;
 
 enum RegisterMode { COMMAND = LOW, CHAR = HIGH };
+
+static void display_on(LCD *lcd);
+static void display_off(LCD *lcd);
 
 static void write_nibble(LCD *lcd, int n, RegisterMode m);
 static void write_byte(LCD *lcd, int n, RegisterMode m);
@@ -49,9 +53,14 @@ void LCD_init(LCD *lcd) {
   delay(1);
 
   write_byte(lcd, CMD_FUNC_SET, COMMAND);
-  write_byte(lcd, CMD_DISPLAY_ON | (lcd->blink ? _BLINK_CURSOR : 0), COMMAND);
+  // always start with screen on
+  display_on(lcd);
   write_byte(lcd, CMD_CLEAR, COMMAND);
   write_byte(lcd, CMD_ENTRY_MODE, COMMAND);
+}
+
+void LCD_toggle_display(LCD *lcd) {
+  lcd->_display_on ? display_off(lcd) : display_on(lcd);
 }
 
 void LCD_print(LCD *lcd, char *s) {
@@ -84,6 +93,17 @@ void LCD_create_char(LCD *lcd, unsigned int addr, unsigned int byte_array[8]) {
 }
 void LCD_write_char(LCD *lcd, unsigned int c) { write_byte(lcd, c, CHAR); }
 
+/* Mid level */
+static void display_on(LCD *lcd) {
+  lcd->_display_on = true;
+  write_byte(lcd, CMD_DISPLAY_ON | (lcd->blink ? _BLINK_CURSOR : 0), COMMAND);
+}
+
+static void display_off(LCD *lcd) {
+  lcd->_display_on = false;
+  write_byte(lcd, CMD_DISPLAY_OFF, COMMAND);
+}
+
 /* Low level */
 static void iicwrite(int data) {
   Wire.beginTransmission(ADDR);
@@ -94,10 +114,12 @@ static void iicwrite(int data) {
 static void pulse(LCD *lcd, int data, RegisterMode m) {
   // data goes in highest 4 bits, controls are in lower 4
   int REG = m ? RS : 0;
-  iicwrite(data | REG | BACKLIGHT);
-  iicwrite(data | EN | REG | BACKLIGHT);
+  int BL_CONTROL =
+      lcd->_display_on ? BACKLIGHT : 0; // turn off BL when display off
+  iicwrite(data | REG | BL_CONTROL);
+  iicwrite(data | EN | REG | BL_CONTROL);
   delayMicroseconds(1);
-  iicwrite(data | REG | BACKLIGHT);
+  iicwrite(data | REG | BL_CONTROL);
   delayMicroseconds(50);
 }
 
